@@ -38,7 +38,7 @@ var spidersCount = 1
 
 var spider = {
   route: [],
-  net: newNet,
+  net: net,
   position:'a',
   next:function () {
     this.route.push(this.position)
@@ -55,18 +55,12 @@ var spider = {
         continue
       }
 
-      // if (i === 0) {
-      //   newSpider = this
-      // } else {
-        newSpider = this.duplicate()
-        spidersCount++
-      // }
-
+      newSpider = this.duplicate()
       newSpider.position = nextPosition
       newSpider.next(newSpider.position)
     };
   },
   duplicate: function () {
-    return angular.copy(this)
+    return $.extend(true, {}, this)
   },
 }
