@@ -62,10 +62,10 @@ var net = {
     h: ['e', 'g', 'i'],
     i: ['f', 'h'],
   },
-  points: [
-    ['d', 'e'],
-    ['c', 'f']
-  ]
+  // points: [
+  //   ['d', 'e'],
+  //   ['c', 'f']
+  // ]
 }
 
 var net2 = {
@@ -88,6 +88,56 @@ var newNet = {
     g: ['c', 'e', 'i'],
     i: ['g', 'f'],
   }
+}
+
+var xiaoyudewang = {
+  nodes:{
+    a:['c','b'],
+    b:['a','c','d','e','f'],
+    c:['a','b','d','h','g'],
+    d:['b','c','h','e'],
+    e:['b','d','f','h'],
+    f:['b','e','i','h','j'],
+    g:['c','h','k'],
+    h:['c','g','d','e','f','i','l'],
+    i:['f','j','h','l'],
+    j:['f','i','l'],
+    k:['g','l'],
+    l:['k','h','i','j'],
+    j:['f','i','l'],
+  },
+  points:[
+    ['a'],
+    ['d'],
+    ['e'],
+    ['i','j']
+  ]
+}
+
+var Map = function (net) {
+  var map = {}
+  map.net = net
+  /**
+   * [addEdge description]
+   * @param {[type]} edge ['a','b']
+   */
+  map.addEdge = function (edge) {
+    if (!map.net.nodes[edge[0]].includes(edge[1])) {
+      map.net.nodes[edge[0]].push(edge[1])
+    }
+    if (!map.net.nodes[edge[1]].includes(edge[0])){
+      map.net.nodes[edge[1]].push(edge[0])
+    }
+  }
+  map.deleteEdge = function (edge) {
+    if (map.net.nodes[edge[0]].includes(edge[1])) {
+      map.net.nodes[edge[0]] = _.without(map.net.nodes[edge[0]], edge[1])
+    }
+    if (map.net.nodes[edge[1]].includes(edge[0])){
+      map.net.nodes[edge[1]] = _.without(map.net.nodes[edge[1]], edge[0])
+    }
+  }
+  return map
 }
 
 var spidersCount = 1
@@ -126,6 +176,5 @@ function Spider(net, start) {
       return solutions
     }
   }
-
   return spider
 }
