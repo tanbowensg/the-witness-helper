@@ -62,6 +62,16 @@ var net = {
     h: ['e', 'g', 'i'],
     i: ['f', 'h'],
   },
+  walls: [
+    ['a', 'b'],
+    ['b', 'c'],
+    ['c', 'f'],
+    ['f', 'i'],
+    ['h', 'i'],
+    ['g', 'h'],
+    ['d', 'g'],
+    ['a', 'd'],
+  ]
   // points: [
   //   ['d', 'e'],
   //   ['c', 'f']
@@ -117,6 +127,10 @@ var xiaoyudewang = {
 var Map = function (net) {
   var map = {}
   map.net = net
+  map.edges = []
+  map.init = function (argument) {
+    map.allEdges
+  }
   /**
    * [addEdge description]
    * @param {[type]} edge ['a','b']
@@ -137,6 +151,64 @@ var Map = function (net) {
       map.net.nodes[edge[1]] = _.without(map.net.nodes[edge[1]], edge[0])
     }
   }
+  map.allEdges = function () {
+    _.forEach(map.net.nodes, function (nodes, key) {
+      nodes.forEach(function (node) {
+        var e = [key, node]
+        if (!map.isEdgeExist(e)) {
+          map.edges.push(e)
+        }
+      })
+    })
+    return map.edges
+  }
+  map.allAreas = function () {
+    // _.forEach(map.net.nodes, function (nodes, key) {
+  }
+  map.circle = function (n) {
+    var circle
+    _.forEach(map.net.nodes[n], function (node) {
+      
+    })
+  }
+  map.getRouteEdges = function (route) {
+    var path = []
+    for (var i = 0; i < route.length - 1; i++) {
+      path.push([route[i], route[i + 1]])
+    };
+    return path
+  }
+  map.getCutMap = function (route) {
+    var cutMap
+    var path = map.getRouteEdges(route)
+    var wallPath = _.union(path, map.edges)
+    cutMap = path.filter(function (e) {
+      return map.isEdgeExist(e, wallPath)
+    })
+    return cutMap
+  }
+  map.isEdgeExist = function (edge, array) {
+    var exist = false
+    var textArray
+    if (array) {
+      textArray = array
+    } else {
+      textArray =map.edges
+    }
+    textArray.forEach(function (e) {
+      if (map.isEqual(e,edge)) {
+        exist = true
+      }
+    })
+    return exist
+  }
+  map.isEqual = function (e1, e2) {
+    if (_.isEqual(e1.sort(), e2.sort())){
+      return true
+    }
+    return false
+  }
+  map.init()
   return map
 }
 
@@ -169,6 +241,51 @@ function Spider(net, start) {
         newSpider.findWayTo(end)
       };
     },
+    // bfs: function (end, first) {
+    //   this.route.push(this.position)
+    //   if (first && this.position === end) {
+    //     // console.log('小蜘蛛到达终点啦！路线是：',this.route)
+    //     solutions.push(this.route)
+    //     return this.route
+    //   }
+
+    //   for (var i = 0; i < this.net.nodes[this.position].length; i++) {
+    //     var level
+    //     var newSpider
+    //     var nextPosition = this.net.nodes[this.position][i]
+    //     if (this.route.indexOf(nextPosition) !== -1) {
+    //       continue
+    //     }
+
+    //     newSpider = this.duplicate()
+    //     spidersCount++
+    //     newSpider.position = nextPosition
+    //     level.push(newSpider)
+    //   };
+
+    //   level.forEach(function (ns) {
+    //     ns.findWayTo(end)
+    //   })
+
+      // var i, n, newLevel = []
+
+      // level = level || map.net.nodes[s];
+      // var route = _.extend([], r)
+
+      // route.push(s)
+
+      // for (var i = 0; i < level.length; i++) {
+      //   n = level[i]
+      //   if (n === z) {
+      //     return route
+      //   }
+      //   if (!route.includes(n)) {
+      //     newLevel = newLevel.concat(map.net.nodes[n])
+      //   }
+      // };
+
+      // map.bfs(n, z, route, level)
+    // },
     duplicate: function() {
       return $.extend(true, {}, this)
     },
@@ -178,3 +295,6 @@ function Spider(net, start) {
   }
   return spider
 }
+
+m=Map(net)
+w=TheWitness(net)
