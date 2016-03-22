@@ -153,6 +153,7 @@ var Map = function(net) {
       }
     })
     return exist
+  }
   
   // 判断两条边是否为同一条边
   map.isEqual = function(e1, e2) {
@@ -336,3 +337,5 @@ function Spider(net, start) {
 
 m = Map(net)
 w = TheWitness(net)
+// r = ['a','b','d','g','h','i']
+// m.getNewMapByRoute(r)
