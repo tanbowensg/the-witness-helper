@@ -63,19 +63,19 @@ var net = {
     i: ['f', 'h'],
   },
   walls: [
-    ['a', 'b'],
-    ['b', 'c'],
-    ['c', 'f'],
-    ['f', 'i'],
-    ['h', 'i'],
-    ['g', 'h'],
-    ['d', 'g'],
-    ['a', 'd'],
-  ]
-  // points: [
-  //   ['d', 'e'],
-  //   ['c', 'f']
-  // ]
+      ['a', 'b'],
+      ['b', 'c'],
+      ['c', 'f'],
+      ['f', 'i'],
+      ['h', 'i'],
+      ['g', 'h'],
+      ['d', 'g'],
+      ['a', 'd'],
+    ]
+    // points: [
+    //   ['d', 'e'],
+    //   ['c', 'f']
+    // ]
 }
 
 var net2 = {
@@ -101,59 +101,86 @@ var newNet = {
 }
 
 var xiaoyudewang = {
-  nodes:{
-    a:['c','b'],
-    b:['a','c','d','e','f'],
-    c:['a','b','d','h','g'],
-    d:['b','c','h','e'],
-    e:['b','d','f','h'],
-    f:['b','e','i','h','j'],
-    g:['c','h','k'],
-    h:['c','g','d','e','f','i','l'],
-    i:['f','j','h','l'],
-    j:['f','i','l'],
-    k:['g','l'],
-    l:['k','h','i','j'],
-    j:['f','i','l'],
+  nodes: {
+    a: ['c', 'b'],
+    b: ['a', 'c', 'd', 'e', 'f'],
+    c: ['a', 'b', 'd', 'h', 'g'],
+    d: ['b', 'c', 'h', 'e'],
+    e: ['b', 'd', 'f', 'h'],
+    f: ['b', 'e', 'i', 'h', 'j'],
+    g: ['c', 'h', 'k'],
+    h: ['c', 'g', 'd', 'e', 'f', 'i', 'l'],
+    i: ['f', 'j', 'h', 'l'],
+    j: ['f', 'i', 'l'],
+    k: ['g', 'l'],
+    l: ['k', 'h', 'i', 'j'],
+    j: ['f', 'i', 'l'],
   },
-  points:[
+  points: [
     ['a'],
     ['d'],
     ['e'],
-    ['i','j']
+    ['i', 'j']
   ]
 }
 
-var Map = function (net) {
+var Map = function(net) {
   var map = {}
   map.net = net
   map.edges = []
-  map.init = function (argument) {
-    map.allEdges
+
+  map.init = function(argument) {
+    map.allEdges()
   }
+
+  // 图的基本操作
   /**
    * [addEdge description]
    * @param {[type]} edge ['a','b']
    */
-  map.addEdge = function (edge) {
+  // 判断边是否在某个边的数组中，不傳array就是map.edges
+  map.isEdgeExist = function(edge, array) {
+    var exist = false
+    var textArray
+    if (array) {
+      textArray = array
+    } else {
+      textArray = map.edges
+    }
+    textArray.forEach(function(e) {
+      if (map.isEqual(e, edge)) {
+        exist = true
+      }
+    })
+    return exist
+  
+  // 判断两条边是否为同一条边
+  map.isEqual = function(e1, e2) {
+    if (_.isEqual(e1.sort(), e2.sort())) {
+      return true
+    }
+    return false
+  }
+
+  map.addEdge = function(edge) {
     if (!map.net.nodes[edge[0]].includes(edge[1])) {
       map.net.nodes[edge[0]].push(edge[1])
     }
-    if (!map.net.nodes[edge[1]].includes(edge[0])){
+    if (!map.net.nodes[edge[1]].includes(edge[0])) {
       map.net.nodes[edge[1]].push(edge[0])
     }
   }
-  map.deleteEdge = function (edge) {
+  map.deleteEdge = function(edge) {
     if (map.net.nodes[edge[0]].includes(edge[1])) {
       map.net.nodes[edge[0]] = _.without(map.net.nodes[edge[0]], edge[1])
     }
-    if (map.net.nodes[edge[1]].includes(edge[0])){
+    if (map.net.nodes[edge[1]].includes(edge[0])) {
       map.net.nodes[edge[1]] = _.without(map.net.nodes[edge[1]], edge[0])
     }
   }
-  map.allEdges = function () {
-    _.forEach(map.net.nodes, function (nodes, key) {
-      nodes.forEach(function (node) {
+  map.allEdges = function() {
+    _.forEach(map.net.nodes, function(nodes, key) {
+      nodes.forEach(function(node) {
         var e = [key, node]
         if (!map.isEdgeExist(e)) {
           map.edges.push(e)
@@ -162,52 +189,63 @@ var Map = function (net) {
     })
     return map.edges
   }
-  map.allAreas = function () {
+
+  // 图的区域操作
+  map.allAreas = function() {
     // _.forEach(map.net.nodes, function (nodes, key) {
   }
-  map.circle = function (n) {
-    var circle
-    _.forEach(map.net.nodes[n], function (node) {
-      
-    })
-  }
-  map.getRouteEdges = function (route) {
+  map.circle = function(n) {
+      var circle
+      _.forEach(map.net.nodes[n], function(node) {
+
+      })
+    }
+
+  // 根据路线取得路线经过的边
+  map.getRouteEdges = function(route) {
     var path = []
     for (var i = 0; i < route.length - 1; i++) {
       path.push([route[i], route[i + 1]])
     };
     return path
   }
-  map.getCutMap = function (route) {
-    var cutMap
+
+  // 根据路线取得图的墙和路线所包括的边
+  map.getCutMapEdges = function(route) {
+    var cutMapEdges
     var path = map.getRouteEdges(route)
-    var wallPath = _.union(path, map.edges)
-    cutMap = path.filter(function (e) {
+    var wallPath = _.union(path, map.net.walls)
+    cutMapEdges = map.edges.filter(function(e) {
       return map.isEdgeExist(e, wallPath)
     })
-    return cutMap
+    return cutMapEdges
   }
-  map.isEdgeExist = function (edge, array) {
-    var exist = false
-    var textArray
-    if (array) {
-      textArray = array
-    } else {
-      textArray =map.edges
-    }
-    textArray.forEach(function (e) {
-      if (map.isEqual(e,edge)) {
-        exist = true
-      }
+
+  // 根据所有的边生成一个新的图
+  map.generateMapByEdges = function(edges) {
+    var newMap = Map({
+      nodes: {}
     })
-    return exist
+    edges.forEach(function(e) {
+      var e1 = e[0]
+      var e2 = e[1]
+      if (!newMap.net.nodes.hasOwnProperty(e1)) {
+        newMap.net.nodes[e1] = [];
+      }
+      if (!newMap.net.nodes.hasOwnProperty(e2)) {
+        newMap.net.nodes[e2] = [];
+      }
+      newMap.addEdge(e)
+    })
+    return newMap
   }
-  map.isEqual = function (e1, e2) {
-    if (_.isEqual(e1.sort(), e2.sort())){
-      return true
-    }
-    return false
+
+  // 根据路线和已有的墙生成一个新的图
+  map.getNewMapByRoute = function(route) {
+    var edges = map.getCutMapEdges(route)
+    return map.generateMapByEdges(edges)
   }
+
   map.init()
   return map
 }
@@ -267,24 +305,24 @@ function Spider(net, start) {
     //     ns.findWayTo(end)
     //   })
 
-      // var i, n, newLevel = []
+    // var i, n, newLevel = []
 
-      // level = level || map.net.nodes[s];
-      // var route = _.extend([], r)
+    // level = level || map.net.nodes[s];
+    // var route = _.extend([], r)
 
-      // route.push(s)
+    // route.push(s)
 
-      // for (var i = 0; i < level.length; i++) {
-      //   n = level[i]
-      //   if (n === z) {
-      //     return route
-      //   }
-      //   if (!route.includes(n)) {
-      //     newLevel = newLevel.concat(map.net.nodes[n])
-      //   }
-      // };
+    // for (var i = 0; i < level.length; i++) {
+    //   n = level[i]
+    //   if (n === z) {
+    //     return route
+    //   }
+    //   if (!route.includes(n)) {
+    //     newLevel = newLevel.concat(map.net.nodes[n])
+    //   }
+    // };
 
-      // map.bfs(n, z, route, level)
+    // map.bfs(n, z, route, level)
     // },
     duplicate: function() {
       return $.extend(true, {}, this)
@@ -296,5 +334,5 @@ function Spider(net, start) {
   return spider
 }
 
-m=Map(net)
-w=TheWitness(net)
+m = Map(net)
+w = TheWitness(net)
