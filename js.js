@@ -51,7 +51,7 @@ var TheWitness = function(net) {
 
 // 标准九宫图
 var net = {
-  nodes: {
+  connection: {
     a: ['b', 'd'],
     b: ['a', 'c', 'e'],
     c: ['b', 'f'],
@@ -79,7 +79,7 @@ var net = {
 }
 
 var net2 = {
-  nodes: {
+  connection: {
     a: ['b', 'c'],
     b: ['a', 'i'],
     c: ['a', 'i'],
@@ -88,7 +88,7 @@ var net2 = {
 }
 
 var newNet = {
-  nodes: {
+  connection: {
     a: ['d', 'c'],
     c: ['d', 'g'],
     d: ['a', 'b', 'f'],
@@ -101,7 +101,7 @@ var newNet = {
 }
 
 var xiaoyudewang = {
-  nodes: {
+  connection: {
     a: ['c', 'b'],
     b: ['a', 'c', 'd', 'e', 'f'],
     c: ['a', 'b', 'd', 'h', 'g'],
@@ -154,7 +154,7 @@ var Map = function(net) {
     })
     return exist
   }
-  
+
   // 判断两条边是否为同一条边
   map.isEqual = function(e1, e2) {
     if (_.isEqual(e1.sort(), e2.sort())) {
@@ -164,24 +164,24 @@ var Map = function(net) {
   }
 
   map.addEdge = function(edge) {
-    if (!map.net.nodes[edge[0]].includes(edge[1])) {
-      map.net.nodes[edge[0]].push(edge[1])
+    if (!map.net.connection[edge[0]].includes(edge[1])) {
+      map.net.connection[edge[0]].push(edge[1])
     }
-    if (!map.net.nodes[edge[1]].includes(edge[0])) {
-      map.net.nodes[edge[1]].push(edge[0])
+    if (!map.net.connection[edge[1]].includes(edge[0])) {
+      map.net.connection[edge[1]].push(edge[0])
     }
   }
   map.deleteEdge = function(edge) {
-    if (map.net.nodes[edge[0]].includes(edge[1])) {
-      map.net.nodes[edge[0]] = _.without(map.net.nodes[edge[0]], edge[1])
+    if (map.net.connection[edge[0]].includes(edge[1])) {
+      map.net.connection[edge[0]] = _.without(map.net.connection[edge[0]], edge[1])
     }
-    if (map.net.nodes[edge[1]].includes(edge[0])) {
-      map.net.nodes[edge[1]] = _.without(map.net.nodes[edge[1]], edge[0])
+    if (map.net.connection[edge[1]].includes(edge[0])) {
+      map.net.connection[edge[1]] = _.without(map.net.connection[edge[1]], edge[0])
     }
   }
   map.allEdges = function() {
-    _.forEach(map.net.nodes, function(nodes, key) {
-      nodes.forEach(function(node) {
+    _.forEach(map.net.connection, function(connection, key) {
+      connection.forEach(function(node) {
         var e = [key, node]
         if (!map.isEdgeExist(e)) {
           map.edges.push(e)
@@ -193,11 +193,11 @@ var Map = function(net) {
 
   // 图的区域操作
   map.allAreas = function() {
-    // _.forEach(map.net.nodes, function (nodes, key) {
+    // _.forEach(map.net.connection, function (connection, key) {
   }
   map.circle = function(n) {
       var circle
-      _.forEach(map.net.nodes[n], function(node) {
+      _.forEach(map.net.connection[n], function(node) {
 
       })
     }
@@ -225,16 +225,16 @@ var Map = function(net) {
   // 根据所有的边生成一个新的图
   map.generateMapByEdges = function(edges) {
     var newMap = Map({
-      nodes: {}
+      connection: {}
     })
     edges.forEach(function(e) {
       var e1 = e[0]
       var e2 = e[1]
-      if (!newMap.net.nodes.hasOwnProperty(e1)) {
-        newMap.net.nodes[e1] = [];
+      if (!newMap.net.connection.hasOwnProperty(e1)) {
+        newMap.net.connection[e1] = [];
       }
-      if (!newMap.net.nodes.hasOwnProperty(e2)) {
-        newMap.net.nodes[e2] = [];
+      if (!newMap.net.connection.hasOwnProperty(e2)) {
+        newMap.net.connection[e2] = [];
       }
       newMap.addEdge(e)
     })
@@ -267,9 +267,9 @@ function Spider(net, start) {
         return this.route
       }
 
-      for (var i = 0; i < this.net.nodes[this.position].length; i++) {
+      for (var i = 0; i < this.net.connection[this.position].length; i++) {
         var newSpider
-        var nextPosition = this.net.nodes[this.position][i]
+        var nextPosition = this.net.connection[this.position][i]
         if (this.route.indexOf(nextPosition) !== -1) {
           continue
         }
@@ -288,10 +288,10 @@ function Spider(net, start) {
     //     return this.route
     //   }
 
-    //   for (var i = 0; i < this.net.nodes[this.position].length; i++) {
+    //   for (var i = 0; i < this.net.connection[this.position].length; i++) {
     //     var level
     //     var newSpider
-    //     var nextPosition = this.net.nodes[this.position][i]
+    //     var nextPosition = this.net.connection[this.position][i]
     //     if (this.route.indexOf(nextPosition) !== -1) {
     //       continue
     //     }
@@ -308,7 +308,7 @@ function Spider(net, start) {
 
     // var i, n, newLevel = []
 
-    // level = level || map.net.nodes[s];
+    // level = level || map.net.connection[s];
     // var route = _.extend([], r)
 
     // route.push(s)
@@ -319,7 +319,7 @@ function Spider(net, start) {
     //     return route
     //   }
     //   if (!route.includes(n)) {
-    //     newLevel = newLevel.concat(map.net.nodes[n])
+    //     newLevel = newLevel.concat(map.net.connection[n])
     //   }
     // };
 
@@ -337,5 +337,5 @@ function Spider(net, start) {
 
 m = Map(net)
 w = TheWitness(net)
-// r = ['a','b','d','g','h','i']
-// m.getNewMapByRoute(r)
+r = ['a','b','e','d','g','h','i']
+n = m.getNewMapByRoute(r)
